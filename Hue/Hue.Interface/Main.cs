@@ -38,12 +38,9 @@ namespace Hue.Gui.Experimental {
             }
             else {
                 bridgeIpAddress = Settings.Default.IpAddress;
-            }
-
-            string bridgeUrlBase = "http://" + bridgeIpAddress;
+            }           
 
             deviceHash = Settings.Default.DeviceHashKey;
-
             if (string.IsNullOrWhiteSpace(deviceHash)) {
                 deviceHash = new UserNameGenerator().GenerateUserName();
 
@@ -51,9 +48,7 @@ namespace Hue.Gui.Experimental {
                 Settings.Default.Save();
             }
 
-            Bridge bridge = new Bridge(bridgeUrlBase, deviceHash);
-
-            bridgeController = new BridgeController(bridge);
+            SetBridgeController();
         }
 
         private void Main_Load(object sender, EventArgs e) {   }
@@ -68,6 +63,8 @@ namespace Hue.Gui.Experimental {
             }
 
             Settings.Default.Save();
+
+            SetBridgeController();
         }
 
         private async void IsBridgeActiveButton_Click(object sender, EventArgs e) {
@@ -129,6 +126,14 @@ namespace Hue.Gui.Experimental {
             catch (HueErrorRecievedException) {
                 GetLightButton.BackColor = Color.OrangeRed;
             }
+        }
+
+        private void SetBridgeController() {
+            string bridgeUrlBase = "http://" + bridgeIpAddress;
+
+            Bridge bridge = new Bridge(bridgeUrlBase, deviceHash);
+
+            bridgeController = new BridgeController(bridge);
         }
     }
 }
