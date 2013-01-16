@@ -47,6 +47,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BridgeController.cs" />
+    <Compile Include="Exceptions\HueDataOutOfRangeException.cs" />
     <Compile Include="Exceptions\HueErrorRecievedException.cs" />
     <Compile Include="Exceptions\HueUnresponsiveException.cs" />
     <Compile Include="Extensions\Attributes\HuePropertyNameAttribute.cs" />
@@ -54,6 +55,8 @@
     <Compile Include="HttpHelper.cs" />
     <Compile Include="JsonParser.cs" />
     <Compile Include="Model\Bridge.cs" />
+    <Compile Include="Model\Request\Light.cs" />
+    <Compile Include="Model\Request\LightState.cs" />
     <Compile Include="Model\Response\BridgeConfiguration.cs" />
     <Compile Include="Model\Response\BridgeState.cs" />
     <Compile Include="Model\Response\Device.cs" />

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Json;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Hue.Framework.Exceptions;
@@ -23,7 +24,7 @@ namespace Hue.Framework {
             }
         }
 
-        public async Task<Model.Response.DeviceRegistration> SetDeviceRegistration() {
+        public async Task<Model.Response.DeviceRegistration> SetDeviceRegistrationAsync() {
             Model.Request.DeviceRegistration registrationRequest = new Model.Request.DeviceRegistration {
                 DeviceType = targetBridge.DeviceType,
                 UserName = targetBridge.DeviceUserName,
@@ -45,39 +46,26 @@ namespace Hue.Framework {
             }
         }
 
-        public async Task<Model.Response.BridgeConfiguration> GetBridgeConfiguration() {
+        public async Task<Model.Response.BridgeConfiguration> GetBridgeConfigurationAsync() {
             Uri requestUri = new Uri(targetBridge.FullUri + "/config");
 
             string result = await HttpHelper.GetAsync(requestUri).ConfigureAwait(false);
             JsonParser responseParser = new JsonParser(result);
 
-            Model.Response.Error error = responseParser.ReadAsObject<Model.Response.Error>();
-            if (error.HasDataSet()) {
-                throw new HueErrorRecievedException(error);
-            }
-            else {
-                Model.Response.BridgeConfiguration configuration = responseParser.ReadAsObject<Model.Response.BridgeConfiguration>();
+            Model.Response.BridgeConfiguration configuration = responseParser.ReadAsObject<Model.Response.BridgeConfiguration>();
 
-                return configuration;
-            }
+            return configuration;
         }
 
-        public async Task<Model.Response.BridgeState> GetBridgeState() {
+        public async Task<Model.Response.BridgeState> GetBridgeStateAsync() {
             string result = await HttpHelper.GetAsync(targetBridge.FullUri).ConfigureAwait(false);
             JsonParser responseParser = new JsonParser(result);
+            Model.Response.BridgeState state = responseParser.ReadAsObject<Model.Response.BridgeState>();
 
-            Model.Response.Error error = responseParser.ReadAsObject<Model.Response.Error>();
-            if (error.HasDataSet()) {
-                throw new HueErrorRecievedException(error);
-            }
-            else {
-                Model.Response.BridgeState state = responseParser.ReadAsObject<Model.Response.BridgeState>();
-
-                return state;
-            }
+            return state;
         }
 
-        public async Task<Model.Response.Light> GetLightState(int lightId) {
+        public async Task<Model.Response.Light> GetLightStateAsync(int lightId) {
             Uri requestUri = new Uri(targetBridge.FullUri + "/lights/" + lightId.ToString());
 
             string result = await HttpHelper.GetAsync(requestUri).ConfigureAwait(false);
@@ -92,6 +80,21 @@ namespace Hue.Framework {
                 light.Id = lightId;
 
                 return light;
+            }
+        }
+
+        public async void SetLightState(int lightId, Model.Request.LightState lightState) {
+            Uri requestUri = new Uri(targetBridge.FullUri + "/lights/" + lightId.ToString() + "/state");
+
+            JsonParser parser = new JsonParser(lightState.CreateJsonObject());
+            string requestString = parser.ReadAsString();
+
+            string result = await HttpHelper.PutAsync(requestUri, requestString).ConfigureAwait(false);
+
+            JsonParser responseParser = new JsonParser(result);
+            Model.Response.Error error = responseParser.FirstChild().ReadAsObject<Model.Response.Error>();
+            if (error.HasDataSet()) {
+                throw new HueErrorRecievedException(error);
             }
         }
     }

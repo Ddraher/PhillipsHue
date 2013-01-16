@@ -20,10 +20,8 @@ namespace Hue.Framework.Model.Response {
 
                 if (typeof(IHueReturnableModel).IsAssignableFrom(type)) {
                     IHueReturnableModel instance = (IHueReturnableModel)Activator.CreateInstance(type);
-
-                    huePropertyName = instance.GetHuePropertyName();
-
-                    JsonValue propertyValue = value.ValueOrDefault(huePropertyName);
+                    
+                    JsonValue propertyValue = value.ValueOrDefault(instance.GetHuePropertyName());
 
                     instance.SetSelf(propertyValue.ToJsonObject());
 

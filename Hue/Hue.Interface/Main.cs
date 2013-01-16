@@ -4,7 +4,6 @@ using System.Windows.Forms;
 using Hue.Framework;
 using Hue.Framework.Exceptions;
 using Hue.Framework.Model;
-using Hue.Framework.Model.Response;
 using Hue.Generators;
 using Hue.Interface.Properties;
 
@@ -38,7 +37,7 @@ namespace Hue.Gui.Experimental {
             }
             else {
                 bridgeIpAddress = Settings.Default.IpAddress;
-            }           
+            }
 
             deviceHash = Settings.Default.DeviceHashKey;
             if (string.IsNullOrWhiteSpace(deviceHash)) {
@@ -51,7 +50,7 @@ namespace Hue.Gui.Experimental {
             SetBridgeController();
         }
 
-        private void Main_Load(object sender, EventArgs e) {   }
+        private void Main_Load(object sender, EventArgs e) { }
 
         private void SaveBridgeSettingsButton_Click(object sender, EventArgs e) {
             if (!string.IsNullOrWhiteSpace(bridgeIpAddress)) {
@@ -80,7 +79,7 @@ namespace Hue.Gui.Experimental {
 
         private async void SetAuthenticationButton_Click(object sender, EventArgs e) {
             try {
-                DeviceRegistration registration = await bridgeController.SetDeviceRegistration();
+                Hue.Framework.Model.Response.DeviceRegistration registration = await bridgeController.SetDeviceRegistrationAsync();
 
                 SetAuthenticationButton.BackColor = Color.GreenYellow;
             }
@@ -94,7 +93,7 @@ namespace Hue.Gui.Experimental {
 
         private async void GetBridgeConfigurationButton_Click(object sender, EventArgs e) {
             try {
-                BridgeConfiguration configuration = await bridgeController.GetBridgeConfiguration();
+                Hue.Framework.Model.Response.BridgeConfiguration configuration = await bridgeController.GetBridgeConfigurationAsync();
 
                 GetBridgeConfigurationButton.BackColor = Color.GreenYellow;
             }
@@ -105,7 +104,7 @@ namespace Hue.Gui.Experimental {
 
         private async void BridgeStateButton_Click(object sender, EventArgs e) {
             try {
-                BridgeState state = await bridgeController.GetBridgeState();
+                Hue.Framework.Model.Response.BridgeState state = await bridgeController.GetBridgeStateAsync();
 
                 BridgeStateButton.BackColor = Color.GreenYellow;
             }
@@ -119,12 +118,31 @@ namespace Hue.Gui.Experimental {
             int index = (int)LightNumUpDown.Value;
 
             try {
-                Light state = await bridgeController.GetLightState(index);
+                Hue.Framework.Model.Response.Light state = await bridgeController.GetLightStateAsync(index);
 
                 GetLightButton.BackColor = Color.GreenYellow;
             }
             catch (HueErrorRecievedException) {
                 GetLightButton.BackColor = Color.OrangeRed;
+            }
+        }
+
+        private void SetLightButton_Click(object sender, EventArgs e) {
+            int index = (int)TargetLightUpDown.Value;
+
+            Hue.Framework.Model.Request.LightState state = new Framework.Model.Request.LightState {
+                Hue = (int)HueUpDown.Value,
+                Saturation = (int)SaturationUpDown.Value,
+                Brightness = (int)BrightnessUpDown.Value,
+            };
+
+            try {
+                bridgeController.SetLightState(index, state);
+
+                SetLightButton.BackColor = Color.GreenYellow;
+            }
+            catch (HueErrorRecievedException) {
+                SetLightButton.BackColor = Color.OrangeRed;
             }
         }
 
